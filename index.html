@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOC 101 · Chapter 7: Breaking the Rules — The Deviance &amp; Social Control Lab</title>
+<style>
+  :root{
+    --ink:#3a2a1c; --paper:#faf3ea; --card:#ffffff; --accent:#8b4226; --accent2:#3d6b5c;
+    --gold:#c98a3e; --good:#2e7d4f; --bad:#a8402e; --soft:#f1e4d3; --line:#e2cfb4;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:Georgia,'Times New Roman',serif; background:var(--paper); color:var(--ink); line-height:1.6;}
+  .wrap{max-width:860px; margin:0 auto; padding:16px;}
+  header.top{background:var(--ink); color:#fff; padding:20px 16px 14px; position:relative;}
+  header.top .htxt{max-width:860px; margin:0 auto; padding-right:120px;}
+  header.top h1{font-size:1.4rem; letter-spacing:.5px;}
+  header.top p{color:#d9c8a9; font-size:.95rem; margin-top:4px; font-style:italic;}
+  header.top .byline{color:var(--gold); font-size:.82rem; margin-top:4px; font-style:normal;}
+  .mascot-head{position:absolute; right:14px; bottom:-6px; width:90px; pointer-events:none; filter:drop-shadow(0 3px 4px rgba(0,0,0,.35));}
+  .progressbar{position:sticky; top:0; z-index:50; background:var(--soft); border-bottom:2px solid var(--line);}
+  .progressbar .inner{max-width:860px; margin:0 auto; padding:8px 16px; display:flex; align-items:center; gap:10px;}
+  .ptrack{flex:1; height:10px; background:#e8dccb; border-radius:8px; overflow:hidden;}
+  .pfill{height:100%; width:0%; background:linear-gradient(90deg,var(--accent),var(--gold)); transition:width .5s;}
+  .plabel{font-size:.78rem; font-family:Verdana,sans-serif; white-space:nowrap;}
+  .screen{display:none; animation:fade .35s;}
+  .screen.active{display:block;}
+  @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:22px; margin:18px 0; box-shadow:0 2px 6px rgba(0,0,0,.06);}
+  .card h2{font-size:1.22rem; color:var(--accent); margin-bottom:8px;}
+  .card h3{font-size:1.02rem; color:var(--accent2); margin:14px 0 6px;}
+  .kicker{font-family:Verdana,sans-serif; font-size:.7rem; letter-spacing:1.5px; color:var(--accent2); margin-bottom:4px;}
+  .btn{display:inline-block; font-family:Verdana,sans-serif; font-size:.9rem; background:var(--accent); color:#fff; border:none; border-radius:9px; padding:12px 22px; cursor:pointer; margin-top:12px;}
+  .btn:hover{filter:brightness(1.1);}
+  .btn.secondary{background:var(--accent2);}
+  .btn.ghost{background:transparent; color:var(--accent); border:2px solid var(--accent); padding:10px 20px;}
+  .btn.locked{background:#cdbba1; cursor:not-allowed;}
+  .choice{display:block; width:100%; text-align:left; background:var(--soft); border:2px solid var(--line); border-radius:8px; padding:11px 14px; margin:7px 0; cursor:pointer; font-family:Georgia,serif; font-size:.96rem; color:var(--ink);}
+  .choice:hover{border-color:var(--gold);}
+  .choice.correct{border-color:var(--good); background:#e6f2e6;}
+  .choice.wrong{border-color:var(--bad); background:#f9e3e1;}
+  .choice.picked{border-color:var(--accent); background:#fbeedd;}
+  .choice:disabled{cursor:default;}
+  .feedback{border-left:5px solid var(--gold); background:#fff8ec; padding:11px 14px; border-radius:0 8px 8px 0; margin:10px 0; display:none; font-size:.93rem;}
+  .feedback.show{display:block;}
+  .feedback.good{border-color:var(--good); background:#eaf5ee;}
+  .keyterm{background:#eef4f4; border:1px dashed var(--accent2); border-radius:8px; padding:10px 14px; margin:10px 0; font-size:.92rem;}
+  .keyterm b{color:var(--accent2);}
+  .verdict{font-family:Verdana,sans-serif; font-size:.8rem; margin-top:8px; display:none;}
+  .verdict.show{display:block;}
+  textarea{width:100%; min-height:78px; border:2px solid var(--line); border-radius:8px; padding:10px; font-family:Georgia,serif; font-size:.95rem; background:#fffdf9;}
+  textarea:focus{outline:2px solid var(--gold);}
+  input[type=text]{width:100%; border:2px solid var(--line); border-radius:8px; padding:10px; font-family:Georgia,serif; font-size:.95rem;}
+  .navrow{display:flex; justify-content:space-between; align-items:center; margin:8px 0 30px;}
+  .scorepill{display:inline-block; font-family:Verdana,sans-serif; font-size:.75rem; background:var(--ink); color:var(--gold); border-radius:20px; padding:4px 12px; margin-left:8px; vertical-align:middle;}
+  .note{font-size:.82rem; color:#6b5d4a; font-style:italic; margin-top:8px;}
+  .takeaways li{margin:8px 0 8px 20px;}
+  .certbtns{display:flex; gap:10px; flex-wrap:wrap;}
+  #certCanvas{display:none;}
+  .quote{font-style:italic; text-align:center; padding:12px 18px; color:#5a4632; font-size:1rem;}
+  .quote span{display:block; font-style:normal; font-size:.82rem; margin-top:4px; color:var(--accent);}
+  .footer-credit{text-align:center; font-family:Verdana,sans-serif; font-size:.75rem; color:#8a7a63; margin:24px 0 8px;}
+  @media(max-width:620px){ header.top .htxt{padding-right:80px;} .mascot-head{width:64px;} }
+
+  .videowrap{position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:10px; margin:12px 0 6px; border:1px solid var(--line); background:#000;}
+  .videowrap iframe{position:absolute; top:0; left:0; width:100%; height:100%; border:0;}
+  .videocaption{font-family:Verdana,sans-serif; font-size:.75rem; color:#8a7a63; text-align:center; margin:0 0 14px;}
+
+  /* Matching game */
+  .match-wrap{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:14px 0;}
+  .match-col h4{font-family:Verdana,sans-serif; font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--accent2); margin-bottom:8px;}
+  .match-btn{display:block; width:100%; text-align:left; background:#fff; border:2px solid var(--line); border-radius:8px; padding:10px 12px; margin:6px 0; cursor:pointer; font-family:Georgia,serif; font-size:.9rem; color:var(--ink);}
+  .match-btn:hover{border-color:var(--gold);}
+  .match-btn.selected{border-color:var(--accent); background:#fbeedd;}
+  .match-btn.matched{border-color:var(--good); background:#e6f2e6; cursor:default; opacity:.75;}
+  .match-btn.shake{border-color:var(--bad); background:#f9e3e1;}
+  @media(max-width:560px){ .match-wrap{grid-template-columns:1fr;} }
+
+  /* Classify rows */
+  .classify-row{border:2px solid var(--line); border-radius:10px; padding:12px 14px; margin:10px 0;}
+  .classify-row h4{font-size:.98rem; margin-bottom:8px;}
+  .classify-opts{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:6px;}
+  .classify-opt{font-family:Verdana,sans-serif; font-size:.8rem; background:#fff; border:2px solid var(--line); border-radius:18px; padding:8px 14px; cursor:pointer;}
+  .classify-opt:hover{border-color:var(--gold);}
+  .classify-opt.picked{border-color:var(--accent); background:#fbeedd;}
+  .classify-opt:disabled{cursor:default; opacity:.6;}
+  .classify-reveal{display:none; font-size:.88rem; background:#fff8ec; border-left:4px solid var(--gold); border-radius:0 8px 8px 0; padding:9px 12px; margin-top:6px;}
+  .classify-reveal.show{display:block;}
+
+  /* Dig deeper expandable box */
+  .digdeeper{border:2px dashed var(--accent2); border-radius:10px; margin:16px 0;}
+  .digdeeper summary{cursor:pointer; padding:12px 16px; font-family:Verdana,sans-serif; font-size:.85rem; color:var(--accent2); font-weight:bold; list-style:none;}
+  .digdeeper summary::-webkit-details-marker{display:none;}
+  .digdeeper summary:before{content:"+ "; }
+  .digdeeper[open] summary:before{content:"− "; }
+  .digdeeper .ddbody{padding:0 16px 16px;}
+  .ddcat{margin:14px 0;}
+  .ddcat h4{color:var(--accent); font-size:.95rem; margin-bottom:4px;}
+  .ddcat p{font-size:.88rem; margin:3px 0;}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="htxt">
+    <h1>Breaking the Rules &mdash; The Deviance &amp; Social Control Lab</h1>
+    <p>Chapter 7: Deviance and Social Control &middot; SOC 101 &middot; Essex County College</p>
+    <p class="byline">Created by Jenika Towana Scott, M.S.W. (PhD Student), Adjunct Professor</p>
+  </div>
+  <img class="mascot-head" id="themeImg" alt="Course illustration" />
+</header>
+
+<div class="progressbar"><div class="inner">
+  <div class="ptrack"><div class="pfill" id="pfill"></div></div>
+  <div class="plabel" id="plabel">Start</div>
+</div></div>
+
+<div class="wrap">
+
+<!-- 0: WELCOME -->
+<section class="screen active" id="s0">
+  <div class="card">
+    <p class="kicker">WELCOME</p>
+    <h2>Before we start</h2>
+    <p>Every society draws lines between what's acceptable and what isn't &mdash; but where those lines fall, who gets to draw them, and what happens to people who cross them, is one of the richest questions in sociology. This lab walks you through <b>deviance and social control</b>: why rule-breaking exists, how it's explained, who decides what counts as "deviant," and what happens when institutions hold real power over people.</p>
+    <p>Most sections here include short comprehension checks, so you can see what you've got down. The final section &mdash; <b>Behind the Bars</b>, built around the Stanford Prison Experiment &mdash; is a reflection, not a quiz. There's no right answer to chase there; the goal is to think it through honestly.</p>
+    <h3>Your name (for your certificate):</h3>
+    <input type="text" id="realname" placeholder="Your full name">
+    <button class="btn" onclick="tryStart()">Begin &rarr;</button>
+  </div>
+</section>
+
+<!-- 1: WHAT IS DEVIANCE? -->
+<section class="screen" id="s1">
+  <div class="card">
+    <p class="kicker">PART 1</p>
+    <h2>What Is Deviance? <span class="scorepill" id="pill1">0/5</span></h2>
+    <div class="keyterm"><b>Deviance</b> &mdash; variation from a set of norms or shared social expectations. People who violate these expectations are <b>deviants</b>. The opposite of deviance is <b>conformity</b>.</div>
+    <p>Deviance isn't automatically bad for a society. The textbook identifies real <b>positive functions</b> of deviance (it defines the limits of social tolerance, increases group solidarity, serves as a safety valve for discontent, points out defects in the social order, and can set social change in motion) alongside real <b>dysfunctions</b> (it disrupts social order, discourages others from conforming, destroys trust, and diverts resources into control efforts).</p>
+    <p>Sort each example below as a <b>Positive Function</b> or a <b>Dysfunction</b> of deviance.</p>
+    <div id="funcList"></div>
+
+    <h3>Traditional Views of Deviance</h3>
+    <div class="keyterm"><b>Absolutist view</b> &mdash; certain behaviors are deviant regardless of social context. <b>Moralist view</b> &mdash; norm violations are deviant because they are morally wrong. <b>Medical view</b> &mdash; deviance is pathological evidence that a society is unhealthy (and <b>medicalization of deviance</b> is the transformation of moral/legal deviance into a medical condition). <b>Statistical view</b> &mdash; any variation from a statistical norm counts as deviant (e.g., left-handedness).</div>
+    <p>Classify each example by which traditional view of deviance it best illustrates.</p>
+    <div id="viewList"></div>
+  </div>
+  <div class="navrow"><button class="btn ghost" onclick="go(0)">&larr; Back</button><button class="btn locked" id="next1" data-lock="1" onclick="guardGo(this,2)">Next &rarr;</button></div>
+</section>
+
+<!-- 2: THE RELATIVE NATURE OF DEVIANCE -->
+<section class="screen" id="s2">
+  <div class="card">
+    <p class="kicker">PART 2</p>
+    <h2>The Relative Nature of Deviance <span class="scorepill" id="pill2">0/4</span></h2>
+    <div class="keyterm"><b>Relativistic view of deviance</b> &mdash; deviance can be interpreted only in the sociocultural context in which it occurs. <b>Blaming the victim</b> &mdash; a type of reasoning that implies social problems are caused by the people facing them.</div>
+    <p>The textbook shows that deviance varies along four dimensions: <b>time</b>, <b>place</b>, <b>situation</b>, and <b>social status</b>. Match each example to the dimension it illustrates.</p>
+    <div id="relList"></div>
+  </div>
+  <div class="navrow"><button class="btn ghost" onclick="go(1)">&larr; Back</button><button class="btn locked" id="next2" data-lock="1" onclick="guardGo(this,3)">Next &rarr;</button></div>
+</section>
+
+<!-- 3: SOCIAL CONTROL -->
+<section class="screen" id="s3">
+  <div class="card">
+    <p class="kicker">PART 3</p>
+    <h2>Deviance and Social Control <span class="scorepill" id="pill3">0/6</span></h2>
+    <div class="keyterm"><b>Internal means of control</b> &mdash; learned patterns of control that exist in the minds of individuals and make them want to conform. <b>External means of control</b> &mdash; pressures or sanctions applied to members of society by others. <b>Sanctions</b> &mdash; rewards and punishments used to encourage proper behavior (<b>positive sanctions</b> encourage a behavior to continue; <b>negative sanctions</b> discourage it).</div>
+    <div class="keyterm"><b>Informal external controls</b> &mdash; positive and negative controls, like smiling, frowning, and high-fiving, used to influence behavior. <b>Formal external controls</b> &mdash; the systems created by society specifically to control deviance, such as those in a courtroom.</div>
+    <p>Sort each example of social control below.</p>
+    <div id="ctrlList"></div>
+
+    <h3>Your turn</h3>
+    <p style="font-size:.9rem;">Think of a time an <b>informal</b> sanction (a look, a comment, being left out) changed your behavior more than a formal rule ever could. What happened, and why do you think it worked?</p>
+    <textarea id="refCtrl" placeholder="The informal sanction that changed my behavior was&hellip;"></textarea>
+    <button class="btn" id="ctrlBtn" onclick="finishCtrlReflection()">Continue &rarr;</button>
+  </div>
+  <div class="navrow"><button class="btn ghost" onclick="go(2)">&larr; Back</button><button class="btn locked" id="next3" data-lock="1" onclick="guardGo(this,4)">Next &rarr;</button></div>
+</section>
+
+<!-- 4: BIOLOGICAL AND PSYCHOLOGICAL THEORIES -->
+<section class="screen" id="s4">
+  <div class="card">
+    <p class="kicker">PART 4</p>
+    <h2>Theories Explaining Deviance: Biology &amp; Psychology <span class="scorepill" id="pill4">0/4</span></h2>
+    <p>Before sociologists developed their own explanations, biological and psychological theories dominated. Most have been seriously undermined by later research &mdash; but they still shape popular thinking about crime today.</p>
+    <div class="keyterm">Cesare Lombroso, the "father of modern criminology," argued criminals were a <b>"born criminal" type</b> identifiable by physical traits (long arms, small ears, a protruding jaw). William Sheldon later linked body type to behavior: <b>endomorphs</b> (soft, round) as laid-back, <b>ectomorphs</b> (skinny) as shy and cerebral, and <b>mesomorphs</b> (muscular) as disproportionately criminal. Research has basically ruled out a "born criminal," and most sociologists reject biology or heredity alone as a cause of deviance.</div>
+    <div class="keyterm">Sigmund Freud's <b>psychoanalytic theory</b> divides personality into the <b>id</b> (the inborn, pleasure-seeking drive), the <b>superego</b> (internalized social norms &mdash; our "conscience"), and the <b>ego</b> (the "reality principle" that mediates between the two). An id-dominated personality is more likely to be deviant; a superego-dominated one is likely to be rigid.</div>
+    <div id="biopsyList"></div>
+  </div>
+  <div class="navrow"><button class="btn ghost" onclick="go(3)">&larr; Back</button><button class="btn locked" id="next4" data-lock="1" onclick="guardGo(this,5)">Next &rarr;</button></div>
+</section>
+
+<!-- 5: SOCIOLOGICAL THEORIES -->
+<section class="screen" id="s5">
+  <div class="card">
+    <p class="kicker">PART 5</p>
+    <h2>Sociological Theories of Deviance <span class="scorepill" id="pill5">0/9</span></h2>
+
+    <h3>Structural Functionalism: Strain &amp; Anomie</h3>
+    <div class="keyterm"><b>Anomie</b> &mdash; the incongruence between a society's emphasis on attaining certain goals and the availability of legitimate, institutionalized means of reaching those goals; often gives rise to deviance. Robert Merton identified five <b>modes of adaptation</b> to the gap between culturally approved goals (wealth, success) and the legitimate means of achieving them (education, hard work): <b>Conformity</b> (accepts both goals and means), <b>Innovation</b> (accepts goals, rejects legitimate means), <b>Ritualism</b> (rejects goals, rigidly follows means), <b>Retreatism</b> (rejects both), and <b>Rebellion</b> (rejects and replaces both with new ones).</div>
+    <p>Match each person to their mode of adaptation.</p>
+    <div id="mertonList"></div>
+
+    <h3>Conflict Theory</h3>
+    <div class="keyterm"><b>Conflict theory</b> &mdash; a social theory that views conflict as inevitable and natural and as a significant cause of social change. Conflict theorists argue the powerful define the acts of weaker groups as "deviant," and that the law tends to favor the rich and powerful &mdash; not because officials are evil, but because punishing the middle and upper classes would cost them political and economic support.</p>
+    <div class="mcgroup">
+    <button class="choice" onclick="theoryPick(this,true,'conflictfb','Right — Bernie Madoff\'s $65 billion Ponzi scheme over four decades, and the fact that many responsible for the 2008 financial crisis faced no criminal consequences at all, are exactly the kind of case conflict theorists point to: the powerful can do enormous harm and often avoid the label &ldquo;criminal&rdquo; far more easily than someone who steals groceries.')">A financier runs a decades-long Ponzi scheme worth billions, while a person who steals food from a grocery store is arrested the same day &mdash; this gap best illustrates which theory?</button>
+    </div>
+    <div class="feedback" id="conflictfb"></div>
+    <p style="font-size:.88rem;"><i>(That question only has one option on purpose &mdash; click it to reveal why conflict theory fits.)</i></p>
+
+    <h3>Symbolic Interactionism: Learning &amp; Labeling</h3>
+    <div class="keyterm"><b>Cultural transmission theory</b> (subculture theory) &mdash; a community's deviance may be transmitted to newcomers through learning and socialization. <b>Differential association theory</b> (Sutherland) &mdash; deviance results when individuals have more contact with groups that define deviance favorably than with groups that define it unfavorably. <b>Social learning theory</b> &mdash; deviant and conforming behaviors are strongly influenced by their consequences (rewards and punishments) &mdash; <b>differential reinforcement</b>.</div>
+    <div class="keyterm"><b>Labeling theory</b> &mdash; emphasizes how certain behaviors are labeled "deviant," and how being given that label influences a person's future behavior. Edwin Lemert distinguished <b>primary deviance</b> (temporary, sporadic norm violation the person doesn't see as part of their identity) from <b>secondary deviance</b> (habitual violation where the person is labeled &mdash; by themselves and others &mdash; as deviant, which often becomes a self-fulfilling "deviant career").</div>
+    <div id="labelList"></div>
+  </div>
+  <div class="navrow"><button class="btn ghost" onclick="go(4)">&larr; Back</button><button class="btn locked" id="next5" data-lock="1" onclick="guardGo(this,6)">Next &rarr;</button></div>
+</section>
+
+<!-- 6: CRIME AND THE CRIMINAL JUSTICE SYSTEM -->
+<section class="screen" id="s6">
+  <div class="card">
+    <p class="kicker">PART 6</p>
+    <h2>Crime &amp; the Criminal Justice System <span class="scorepill" id="pill6">0/6</span></h2>
+    <div class="keyterm"><b>Crime</b> &mdash; a violation of criminal statutory law, typically accompanied by a specific punishment applied by a governmental authority. Crimes are classified as <b>felonies</b> (punishable by 1+ years in state prison) or <b>misdemeanors</b> (a fine and/or up to 1 year in county jail).</div>
+    <p>Match each example to its type of crime: <b>violent</b>, <b>property</b>, <b>victimless</b>, <b>white-collar</b>, or <b>organized</b> crime.</p>
+    <div id="crimeList"></div>
+
+    <h3>Measuring Crime</h3>
+    <div class="keyterm"><b>Uniform Crime Report (UCR)</b> &mdash; the FBI's official source for crime statistics, gathered from 18,000+ law enforcement agencies, but limited to crimes actually reported to police. <b>National Crime Victimization Survey (NCVS)</b> &mdash; data collected by the Bureau of Justice Statistics directly from victims (even unreported crimes) &mdash; and in 2023, only about 45% of violent crimes were reported to police at all.</div>
+    <p><b>A researcher wants to know how much crime actually happens, including crimes victims never reported to police. Which source should they rely on?</b></p>
+    <div class="mcgroup">
+    <button class="choice" onclick="theoryPick(this,false,'cjfb','The UCR only counts crimes that were reported to and recorded by police — it misses the large share of crime that goes unreported.')">The Uniform Crime Report (UCR)</button>
+    <button class="choice" onclick="theoryPick(this,true,'cjfb','Right — the NCVS surveys people directly about their experiences as victims, which is the only way to capture crime that was never reported to police in the first place.')">The National Crime Victimization Survey (NCVS)</button>
+    </div>
+    <div class="feedback" id="cjfb"></div>
+
+    <h3>The Criminal Justice System</h3>
+    <p style="font-size:.9rem;">The criminal justice system has three parts: <b>police</b> (local, county, state, and federal), <b>courts</b> (a dual system of state and federal courts, up through appellate courts and, ultimately, the U.S. Supreme Court), and <b>corrections</b> (incarceration in jails, state prisons, federal prisons, and private prisons, plus community corrections like <b>probation</b>, <b>parole</b>, home confinement, and restitution). With over 1.9 million people in prison and over 6 million under some form of correctional supervision, the United States incarcerates more people than any other country in the world.</p>
+  </div>
+  <div class="navrow"><button class="btn ghost" onclick="go(5)">&larr; Back</button><button class="btn locked" id="next6" data-lock="1" onclick="guardGo(this,7)">Next &rarr;</button></div>
+</section>
+
+<!-- 7: BEHIND THE BARS -->
+<section class="screen" id="s7">
+  <div class="card">
+    <p class="kicker">PART 7 &middot; REFLECTION, NOT A QUIZ</p>
+    <h2>Behind the Bars: Power, Conformity, and Deviance</h2>
+    <p><i>A Sociological Reflection</i></p>
+    <p>In 1971, psychologist Philip Zimbardo randomly assigned college-student volunteers to play "guards" or "prisoners" in a mock prison in the basement of a Stanford University building. The study was meant to run two weeks; Zimbardo shut it down after six days, after guards escalated to humiliating and abusive treatment of prisoners and several prisoners suffered severe emotional distress.</p>
+    <p>Watch the overview below, then read the note on its criticisms before you reflect.</p>
+    <div class="videowrap"><iframe src="https://www.youtube.com/embed/IRR7CwdHxUE" title="Behind the Bars: Power, Conformity, and Deviance" allowfullscreen></iframe></div>
+    <p class="videocaption">Video provided by Professor Scott for this assignment</p>
+
+    <div class="keyterm"><b>A note on the study's criticisms:</b> The Stanford Prison Experiment is one of the most famous studies in social science &mdash; and also one of the most heavily criticized. Researchers who later reviewed Zimbardo's original audio recordings and archived materials found evidence that guards were coached toward cruelty rather than simply discovering it on their own: a staff member instructed guards, before the study began, to be "tough" and to create a sense of powerlessness in the prisoners. Critics have also pointed out that participants were not a random cross-section of the public (they responded to an ad for a study on "prison life," which may have selected for certain personality traits), and that several guards later said they were partly performing for the researchers. None of this means the study revealed nothing &mdash; but it does mean its most dramatic conclusion, that ordinary people will spontaneously and uniformly become cruel the moment they're given power over others, is more contested than the popular retelling suggests.</div>
+
+    <h3>Your Reflection</h3>
+    <p style="font-size:.9rem;">Answer all five questions below in as much depth as you can. This is the core of the assignment &mdash; take your time.</p>
+
+    <p><b>1. Understanding the experiment:</b> What happened during the Stanford Prison Experiment? Identify one specific moment that stood out to you and explain why.</p>
+    <textarea id="spe1" placeholder="One moment that stood out to me was&hellip;"></textarea>
+
+    <p style="margin-top:14px;"><b>2. Applying sociological concepts:</b> Identify two concepts from this chapter that help explain the interactions between guards and prisoners. Use specific examples.</p>
+    <textarea id="spe2" placeholder="Two concepts from this chapter that help explain this are&hellip;"></textarea>
+
+    <p style="margin-top:14px;"><b>3. Thinking about power:</b> Using conflict theory, explain how differences in power and authority may have influenced participants' behavior.</p>
+    <textarea id="spe3" placeholder="Using conflict theory, I would explain the guards' and prisoners' behavior as&hellip;"></textarea>
+
+    <p style="margin-top:14px;"><b>4. Questioning the research:</b> Researchers have challenged the experiment's findings, including evidence that guards received instructions encouraging certain behaviors. How does this information change your interpretation of the experiment?</p>
+    <textarea id="spe4" placeholder="Knowing that guards may have been coached, I now think&hellip;"></textarea>
+
+    <p style="margin-top:14px;"><b>5. Connecting sociology to the real world:</b> What questions does this experiment raise about authority, accountability, and social control in institutions such as prisons, schools, or workplaces?</p>
+    <textarea id="spe5" placeholder="This experiment raises questions about&hellip;"></textarea>
+
+    <button class="btn" id="speBtn" onclick="finishSPEReflection()">Continue &rarr;</button>
+
+    <details class="digdeeper">
+      <summary>Want to dig deeper? Optional prompts (not required)</summary>
+      <div class="ddbody">
+        <p style="font-size:.85rem; margin-top:8px;">These four prompts aren't required and aren't scored &mdash; they're here if you want to think further or your instructor asks you to respond to one in discussion.</p>
+        <div class="ddcat">
+          <h4>1. The Power of Social Roles</h4>
+          <p>How did participants' assigned roles as guards or prisoners shape their behavior? What does this experiment reveal about how quickly people conform to social expectations? Can you think of real-world examples where people have adopted extreme behaviors due to their roles (e.g., police forces, military, corporate environments)?</p>
+        </div>
+        <div class="ddcat">
+          <h4>2. Would This Happen Today?</h4>
+          <p>Do you think similar behavior would occur if this experiment were replicated in modern institutions? Why or why not? How do current policies, ethics, and human rights laws shape institutional power today? Are there any recent events (e.g., workplace dynamics, military scandals, school environments) that reflect similar power dynamics?</p>
+        </div>
+        <div class="ddcat">
+          <h4>3. Labeling and Deviant Identities</h4>
+          <p>How did the labels of "prisoner" and "guard" affect participants' sense of self? What role does labeling play in shaping deviant behavior in real-life settings (e.g., prisons, mental health institutions, schools)? How does labeling theory, as discussed in this chapter, explain the psychological impact of being assigned a deviant identity?</p>
+        </div>
+        <div class="ddcat">
+          <h4>4. Moral and Ethical Implications</h4>
+          <p>Should this experiment have been stopped sooner? Why or why not? What ethical guidelines exist today that would prevent such an experiment from being conducted in the same way? Can studying historical experiments like this help us understand how to create more ethical and humane social environments?</p>
+        </div>
+      </div>
+    </details>
+  </div>
+  <div class="navrow"><button class="btn ghost" onclick="go(6)">&larr; Back</button><button class="btn locked" id="next7" data-lock="1" onclick="guardGo(this,8)">See My Summary &rarr;</button></div>
+</section>
+
+<!-- 8: COMPLETION -->
+<section class="screen" id="s8">
+  <div class="card">
+    <p class="kicker">COMPLETE</p>
+    <h2>You finished Chapter 7! &#127891;</h2>
+    <p id="finalMsg" class="quote"></p>
+  </div>
+
+  <div class="card">
+    <h2>Key Takeaways &mdash; Chapter 7</h2>
+    <ul class="takeaways">
+      <li>Deviance is variation from shared norms. It has both positive functions (defining tolerance, building solidarity, acting as a safety valve, exposing social defects, driving change) and dysfunctions (disrupting order, destroying trust).</li>
+      <li>Traditional views treat deviance as absolute/moral, medical/pathological, or statistical. The relativistic view, which most sociologists hold, says deviance can only be understood in the social context where it happens &mdash; it varies by time, place, situation, and social status.</li>
+      <li>Social control relies on internal controls (conscience, self-image) and external controls, both informal (peer pressure, a frown) and formal (police, courts).</li>
+      <li>Biological (Lombroso, Sheldon, XYY) and psychological (Freud's id/ego/superego) theories have mostly been discredited as sole explanations, though some sociologists accept that biology can combine with social factors.</li>
+      <li>Structural functionalism (Merton's strain/anomie and five modes of adaptation), conflict theory (the powerful define deviance to control the weak), and symbolic interactionism (cultural transmission, differential association, social learning, and labeling theory) are the three major sociological perspectives on deviance.</li>
+      <li>Crime is classified as violent, property, victimless, white-collar, or organized, and measured through the UCR (reported crime) and the NCVS (victimization, including unreported crime). The criminal justice system is made up of police, courts, and corrections.</li>
+      <li>The Stanford Prison Experiment remains one of the most cited &mdash; and most contested &mdash; studies of power and conformity in institutions, raising real questions about labeling, authority, and accountability that go well beyond the original study.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Your Certificate &amp; Summary</h2>
+    <p>Download your certificate of completion and a personal summary of your answers below. The summary includes your full Behind the Bars reflection, formatted for you to copy into your discussion post.</p>
+    <div class="certbtns">
+      <button class="btn" onclick="downloadCertificate()">&#127891; Download Certificate</button>
+      <button class="btn secondary" onclick="downloadSummary()">&#128196; Download My Summary (Word Doc)</button>
+    </div>
+    <p class="note">Your certificate doesn't show a numeric score for the Behind the Bars reflection &mdash; that section is for thinking, not scoring. Keep your summary handy; use it to build your discussion post and to study for any comprehension quiz.</p>
+    <div class="quote">&ldquo;Deviance is not a quality of the act a person commits, but a consequence of the rules and sanctions applied by others.&rdquo;<span>&mdash; adapted from Howard Becker, paraphrased for Prof. Jenika Towana Scott's SOC 101</span></div>
+  </div>
+
+  <canvas id="certCanvas" width="1400" height="990"></canvas>
+  <p class="footer-credit">Created by Jenika Towana Scott, M.S.W. (PhD Student), Adjunct Professor &mdash; Essex County College</p>
+</section>
+
+</div>
+
+<script>
+var S = { name:'', done:{} };
+var ORDER=['s0','s1','s2','s3','s4','s5','s6','s7','s8'];
+var screens = ORDER.length;
+
+function $(id){return document.getElementById(id);}
+function pill(id,txt){ $(id).textContent=txt; }
+
+/* ================= ANSWER LOG (for the Word doc summary) ================= */
+var AnswerLog = { func:[], views:[], rel:[], ctrl:[], biopsy:[], merton:[], label:[] };
+
+function tryStart(){
+  var n = $('realname').value.trim();
+  if(!n){ alert('Please type your name so it appears on your certificate.'); return; }
+  S.name = n;
+  go(1);
+}
+function guardGo(btn,n){
+  if(btn.dataset.lock){ alert('Finish everything on this page first — then Next will unlock.'); return; }
+  go(n);
+}
+function unlock(id){ var b=$(id); b.removeAttribute('data-lock'); b.classList.remove('locked'); }
+function go(n){
+  var cur=document.querySelector('.screen.active');
+  if(cur) cur.classList.remove('active');
+  $(ORDER[n]).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  var labels=['Start','Part 1: What Is Deviance?','Part 2: Relative Nature','Part 3: Social Control','Part 4: Bio & Psych Theories','Part 5: Sociological Theories','Part 6: Crime & Justice','Part 7: Behind the Bars','Done!'];
+  $('plabel').textContent=labels[n];
+  $('pfill').style.width=Math.round(n/(screens-1)*100)+'%';
+  if(n===8) finish();
+}
+
+/* ================= PART 1: WHAT IS DEVIANCE? ================= */
+var funcItems=[
+ {id:'f1', label:'A community rallies together and feels closer after a local scandal is uncovered.', val:'Positive', reveal:'This illustrates deviance increasing group solidarity and integration — a classic positive function.'},
+ {id:'f2', label:'A student stops studying hard because classmates openly cheat and use AI to write their papers.', val:'Dysfunction', reveal:'This is the textbook\'s own modern example of deviance disrupting the will of others to conform — when cheating is common, playing by the rules starts to feel pointless.'},
+ {id:'f3', label:'Widespread tax evasion is tolerated as a way people privately vent frustration with the system.', val:'Positive', reveal:'This is the "safety valve" function — minor deviance can release social tension that might otherwise explode into bigger conflict.'},
+ {id:'f4', label:'Repeated bus boycotts during the Civil Rights Movement broke unjust laws and helped end segregation.', val:'Positive', reveal:'This shows deviance setting social change in motion — breaking an unjust norm can be the first step toward a better one.'},
+ {id:'f5', label:'A rise in a certain crime forces a city to divert money from schools into policing and prisons.', val:'Dysfunction', reveal:'This is deviance diverting resources into control and rehabilitation efforts that could have gone elsewhere.'}
+];
+function buildFunc(){
+  var host=$('funcList');
+  funcItems.forEach(function(it){
+    var row=document.createElement('div'); row.className='classify-row';
+    row.innerHTML =
+      '<h4>'+it.label+'</h4>'+
+      '<div class="classify-opts">'+
+        '<button class="classify-opt" data-id="'+it.id+'" data-val="Positive" onclick="funcPick(this)">Positive Function</button>'+
+        '<button class="classify-opt" data-id="'+it.id+'" data-val="Dysfunction" onclick="funcPick(this)">Dysfunction</button>'+
+      '</div>'+
+      '<div class="classify-reveal" id="funcreveal-'+it.id+'"></div>';
+    host.appendChild(row);
+  });
+}
+var funcDone={}, funcViewDone=0;
+function funcPick(btn){
+  var id=btn.dataset.id, val=btn.dataset.val;
+  if(funcDone[id]) return;
+  funcDone[id]=true;
+  var item=funcItems.find(function(x){return x.id===id;});
+  var row=btn.closest('.classify-row');
+  row.querySelectorAll('.classify-opt').forEach(function(b){ b.disabled=true; });
+  var correct = (val===item.val);
+  btn.classList.add(correct?'picked':'picked');
+  var rv=$('funcreveal-'+id);
+  rv.textContent=(correct?'Correct. ':'Not quite — this is actually the other one. ')+item.reveal;
+  rv.classList.add('show');
+  AnswerLog.func.push({q:it_q(item.label), your: val, correct: item.val, right: correct});
+  checkPart1();
+}
+function it_q(label){ return 'Positive function or dysfunction: "'+label+'"'; }
+function checkPart1(){
+  var c1=Object.keys(funcDone).length, c2=viewDone_count();
+  pill('pill1', (c1+c2)+'/'+(funcItems.length+viewItems.length));
+  if(c1===funcItems.length && c2===viewItems.length) unlock('next1');
+}
+
+var viewItems=[
+ {id:'v1', label:'A sociology textbook notes that left-handedness is technically "deviant" just because it varies from the statistical average.', val:'Statistical', reveal:'The statistical view defines deviance as any variation from a statistical norm — no moral judgment involved.'},
+ {id:'v2', label:'For decades, certain mental health conditions were treated purely as medical illnesses requiring treatment by a doctor, rather than as social or moral issues.', val:'Medical', reveal:'This is the medicalization of deviance — turning what was once seen as a moral or legal issue into a medical condition.'},
+ {id:'v3', label:'"Murder is wrong no matter the culture, time period, or circumstances it happens in."', val:'Absolutist', reveal:'This is the absolutist/moralist view — certain acts are deviant regardless of social context.'}
+];
+function buildViews(){
+  var host=$('viewList');
+  viewItems.forEach(function(it){
+    var row=document.createElement('div'); row.className='classify-row';
+    row.innerHTML =
+      '<h4>'+it.label+'</h4>'+
+      '<div class="classify-opts">'+
+        '<button class="classify-opt" data-id="'+it.id+'" data-val="Absolutist" onclick="viewPick(this)">Absolutist/Moral</button>'+
+        '<button class="classify-opt" data-id="'+it.id+'" data-val="Medical" onclick="viewPick(this)">Medical</button>'+
+        '<button class="classify-opt" data-id="'+it.id+'" data-val="Statistical" onclick="viewPick(this)">Statistical</button>'+
+      '</div>'+
+      '<div class="classify-reveal" id="viewreveal-'+it.id+'"></div>';
+    host.appendChild(row);
+  });
+}
+var viewDone={};
+function viewDone_count(){ return Object.keys(viewDone).length; }
+function viewPick(btn){
+  var id=btn.dataset.id, val=btn.dataset.val;
+  if(viewDone[id]) return;
+  viewDone[id]=true;
+  var item=viewItems.find(function(x){return x.id===id;});
+  var row=btn.closest('.classify-row');
+  row.querySelectorAll('.classify-opt').forEach(function(b){ b.disabled=true; });
+  var correct=(val===item.val);
+  var rv=$('viewreveal-'+id);
+  rv.textContent=(correct?'Correct. ':'Not quite — this is actually a different view. ')+item.reveal;
+  rv.classList.add('show');
+  AnswerLog.views.push({q:'Which traditional view: "'+item.label+'"', your: val, correct: item.val, right: correct});
+  checkPart1();
+}
+buildFunc(); buildViews();
+
+/* ================= PART 2: RELATIVE NATURE OF DEVIANCE ================= */
+var relItems=[
+ {id:'r1', label:'Cigarettes were legal to smoke almost anywhere in public in the mid-1900s; by the 2010s, most US states banned smoking in public places.', val:'Time', reveal:'Same behavior, same country — but deviance status changed as social norms about smoking changed over time.'},
+ {id:'r2', label:'Polygamy is legal in dozens of African nations but punishable by law in the United States.', val:'Place', reveal:'This is variation by place — identical behavior, different legal/cultural geography.'},
+ {id:'r3', label:'Sex between spouses at home is accepted; the same act performed in public could lead to an indecent exposure charge.', val:'Situation', reveal:'This is variation by situation — the exact same behavior is judged differently depending on the specific context it happens in.'},
+ {id:'r4', label:'In the US, a man can go topless at almost any beach; a woman doing the same thing is generally considered deviant.', val:'Status', reveal:'This is variation by social status — here, ascribed status (sex) changes whether the same act is seen as deviant.'}
+];
+function buildRel(){
+  var host=$('relList');
+  relItems.forEach(function(it){
+    var row=document.createElement('div'); row.className='classify-row';
+    row.innerHTML =
+      '<h4>'+it.label+'</h4>'+
+      '<div class="classify-opts">'+
+        '<button class="classify-opt" data-id="'+it.id+'" data-val="Time" onclick="relPick(this)">Variation by Time</button>'+
+        '<button class="classify-opt" data-id="'+it.id+'" data-val="Place" onclick="relPick(this)">Variation by Place</button>'+
+        '<button class="classify-opt" data-id="'+it.id+'" data-val="Situation" onclick="relPick(this)">Variation by Situation</button>'+
+        '<button class="classify-opt" data-id="'+it.id+'" data-val="Status" onclick="relPick(this)">Variation by Social Status</button>'+
+      '</div>'+
+      '<div class="classify-reveal" id="relreveal-'+it.id+'"></div>';
+    host.appendChild(row);
+  });
+}
+var relDone={};
+function relPick(btn){
+  var id=btn.dataset.id, val=btn.dataset.val;
+  if(relDone[id]) return;
+  relDone[id]=true;
+  var item=relItems.find(function(x){return x.id===id;});
+  var row=btn.closest('.classify-row');
+  row.querySelectorAll('.classify-opt').forEach(function(b){ b.disabled=true; });
+  var correct=(val===item.val);
+  var rv=$('relreveal-'+id);
+  rv.textContent=(correct?'Correct. ':'Not quite — think again about what\'s actually changing here. ')+item.reveal;
+  rv.classList.add('show');
+  AnswerLog.rel.push({q:'Which dimension of relative deviance: "'+item.label+'"', your: val, correct: item.val, right: correct});
+  var c=Object.keys(relDone).length;
+  pill('pill2', c+'/'+relItems.length);
+  if(c===relItems.length) unlock('next2');
+}
+buildRel();
+
+/* ================= PART 3: SOCIAL CONTROL ================= */
+var ctrlItems=[
+ {id:'c1', label:'A friend rolls their eyes when you show up late again.', val:'Informal', reveal:'An informal control — an everyday reaction from a peer, no official system involved.'},
+ {id:'c2', label:'A judge sentences someone to probation after a courtroom hearing.', val:'Formal', reveal:'A formal control — carried out through the official system society created to control deviance.'},
+ {id:'c3', label:'You feel a flash of guilt after cutting in line, even though no one noticed.', val:'Internal', reveal:'An internal control — this is your own internalized conscience, not pressure from anyone else.'},
+ {id:'c4', label:'Coworkers stop inviting someone to lunch after they repeatedly take credit for others\' work.', val:'Informal', reveal:'An informal control — an unofficial, spontaneous social consequence from peers.'},
+ {id:'c5', label:'A police officer issues a citation for a traffic violation.', val:'Formal', reveal:'A formal control — carried out by an official agency created to enforce rules.'},
+ {id:'c6', label:'Someone resists the temptation to cheat on an exam because "that\'s just not who I am."', val:'Internal', reveal:'An internal control — a self-image and sense of personal integrity doing the work, with no external enforcement at all.'}
+];
+function buildCtrl(){
+  var host=$('ctrlList');
+  ctrlItems.forEach(function(it){
+    var row=document.createElement('div'); row.className='classify-row';
+    row.innerHTML =
+      '<h4>'+it.label+'</h4>'+
+      '<div class="classify-opts">'+
+        '<button class="classify-opt" data-id="'+it.id+'" data-val="Internal" onclick="ctrlPick(this)">Internal Control</button>'+
+        '<button class="classify-opt" data-id="'+it.id+'" data-val="Informal" onclick="ctrlPick(this)">Informal External</button>'+
+        '<button class="classify-opt" data-id="'+it.id+'" data-val="Formal" onclick="ctrlPick(this)">Formal External</button>'+
+      '</div>'+
+      '<div class="classify-reveal" id="ctrlreveal-'+it.id+'"></div>';
+    host.appendChild(row);
+  });
+}
+var ctrlDone={};
+function ctrlPick(btn){
+  var id=btn.dataset.id, val=btn.dataset.val;
+  if(ctrlDone[id]) return;
+  ctrlDone[id]=true;
+  var item=ctrlItems.find(function(x){return x.id===id;});
+  var row=btn.closest('.classify-row');
+  row.querySelectorAll('.classify-opt').forEach(function(b){ b.disabled=true; });
+  var correct=(val===item.val);
+  var rv=$('ctrlreveal-'+id);
+  rv.textContent=(correct?'Correct. ':'Not quite. ')+item.reveal;
+  rv.classList.add('show');
+  AnswerLog.ctrl.push({q:'Which kind of social control: "'+item.label+'"', your: val, correct: item.val, right: correct});
+  var c=Object.keys(ctrlDone).length;
+  pill('pill3', c+'/'+ctrlItems.length+(c===ctrlItems.length?' — now answer below':''));
+}
+buildCtrl();
+function finishCtrlReflection(){
+  var r=$('refCtrl').value.trim();
+  if(Object.keys(ctrlDone).length<ctrlItems.length){ alert('Sort all six examples above first.'); return; }
+  if(!r){ alert('Please answer the reflection question before continuing.'); return; }
+  AnswerLog.ctrl.push({q:'An informal sanction that changed my behavior:', your:r, correct:'(open reflection — no single right answer)', right:true});
+  unlock('next3');
+  $('ctrlBtn').textContent='Saved ✓';
+}
+
+/* ================= PART 4: BIO & PSYCH THEORIES ================= */
+var biopsyItems=[
+ {q:'Lombroso\'s "born criminal" theory has been strongly supported by modern genetic research.', correct:'False', reveal:'False. Research has basically ruled out the idea of a biologically "born criminal" — Lombroso\'s physical-trait theory is considered discredited today.'},
+ {q:'Having an extra Y chromosome (XYY syndrome) has been proven to make men significantly more violent or criminal than men without it.', correct:'False', reveal:'False. While men with XYY syndrome face increased risk for some other conditions, there is no solid evidence they are more "criminal" or violent than other men — this was a popular but unsupported theory.'},
+ {q:'According to Freud, a personality dominated by the id (rather than the ego or superego) is more likely to be deviant.', correct:'True', reveal:'True. The id is the pleasure-seeking, impulse-driven part of personality; when it dominates, deviant behavior becomes more likely. A superego-dominated personality tends toward rigid conformity instead.'},
+ {q:'Most sociologists today accept biology or heredity alone as the primary cause of deviant behavior.', correct:'False', reveal:'False. Most sociologists reject biology/heredity as a standalone explanation, though some accept that biological factors might combine with social factors to make certain behaviors more likely.'}
+];
+function buildBiopsy(){
+  var host=$('biopsyList');
+  biopsyItems.forEach(function(it,i){
+    var row=document.createElement('div'); row.className='classify-row';
+    row.innerHTML =
+      '<h4>'+it.q+'</h4>'+
+      '<div class="classify-opts">'+
+        '<button class="classify-opt" data-i="'+i+'" data-val="True" onclick="biopsyPick(this)">True</button>'+
+        '<button class="classify-opt" data-i="'+i+'" data-val="False" onclick="biopsyPick(this)">False</button>'+
+      '</div>'+
+      '<div class="classify-reveal" id="biopsyreveal-'+i+'"></div>';
+    host.appendChild(row);
+  });
+}
+var biopsyDone={};
+function biopsyPick(btn){
+  var i=btn.dataset.i, val=btn.dataset.val;
+  if(biopsyDone[i]) return;
+  biopsyDone[i]=true;
+  var item=biopsyItems[i];
+  var row=btn.closest('.classify-row');
+  row.querySelectorAll('.classify-opt').forEach(function(b){ b.disabled=true; });
+  var correct=(val===item.correct);
+  var rv=$('biopsyreveal-'+i);
+  rv.textContent=item.reveal;
+  rv.classList.add('show');
+  AnswerLog.biopsy.push({q:item.q, your:val, correct:item.correct, right:correct});
+  var c=Object.keys(biopsyDone).length;
+  pill('pill4', c+'/'+biopsyItems.length);
+  if(c===biopsyItems.length) unlock('next4');
+}
+buildBiopsy();
+
+/* ================= PART 5: SOCIOLOGICAL THEORIES ================= */
+var mertonItems=[
+ {id:'m1', label:'A student wants good grades (accepts the goal) and studies hard to earn them (accepts the means).', val:'Conformity'},
+ {id:'m2', label:'A student wants good grades (accepts the goal) but cheats and uses AI to write papers instead of doing the work (rejects the legitimate means).', val:'Innovation'},
+ {id:'m3', label:'An office manager has lost sight of the department\'s actual goals but rigidly enforces every petty rule anyway.', val:'Ritualism'},
+ {id:'m4', label:'A person struggling with addiction has withdrawn from both the pursuit of conventional success and the legitimate paths to it — they are "in society" but not "of" it.', val:'Retreatism'},
+ {id:'m5', label:'A member of a revolutionary movement rejects society\'s current goals and means entirely and works to replace them with a new social order.', val:'Rebellion'}
+];
+function buildMerton(){
+  var host=$('mertonList');
+  mertonItems.forEach(function(it){
+    var row=document.createElement('div'); row.className='classify-row';
+    row.innerHTML =
+      '<h4>'+it.label+'</h4>'+
+      '<div class="classify-opts">'+
+        '<button class="classify-opt" data-id="'+it.id+'" data-val="Conformity" onclick="mertonPick(this)">Conformity</button>'+
+        '<button class="classify-opt" data-id="'+it.id+'" data-val="Innovation" onclick="mertonPick(this)">Innovation</button>'+
+        '<button class="classify-opt" data-id="'+it.id+'" data-val="Ritualism" onclick="mertonPick(this)">Ritualism</button>'+
+        '<button class="classify-opt" data-id="'+it.id+'" data-val="Retreatism" onclick="mertonPick(this)">Retreatism</button>'+
+        '<button class="classify-opt" data-id="'+it.id+'" data-val="Rebellion" onclick="mertonPick(this)">Rebellion</button>'+
+      '</div>'+
+      '<div class="classify-reveal" id="mertonreveal-'+it.id+'"></div>';
+    host.appendChild(row);
+  });
+}
+var mertonDone={};
+function mertonPick(btn){
+  var id=btn.dataset.id, val=btn.dataset.val;
+  if(mertonDone[id]) return;
+  mertonDone[id]=true;
+  var item=mertonItems.find(function(x){return x.id===id;});
+  var row=btn.closest('.classify-row');
+  row.querySelectorAll('.classify-opt').forEach(function(b){ b.disabled=true; });
+  var correct=(val===item.val);
+  var rv=$('mertonreveal-'+id);
+  rv.textContent=(correct?'Correct — this is '+item.val+'.':'Not quite — this is actually '+item.val+'.');
+  rv.classList.add('show');
+  AnswerLog.merton.push({q:'Which mode of adaptation: "'+item.label+'"', your:val, correct:item.val, right:correct});
+  checkPart5();
+}
+function checkPart5(){
+  var c1=Object.keys(mertonDone).length, c2=Object.keys(labelDone).length, c3=conflictDone?1:0;
+  pill('pill5', (c1+c2+c3)+'/9');
+  if(c1===mertonItems.length && c2===labelItems.length && conflictDone) unlock('next5');
+}
+var conflictDone=false;
+function theoryPick(btn,correct,fbId,msg){
+  // generic single-button reveal (used for conflict theory + UCR/NCVS)
+  btn.classList.add(correct?'correct':'wrong');
+  var grp=btn.closest('.mcgroup') || btn.parentElement;
+  grp.querySelectorAll('.choice').forEach(function(b){ b.disabled=true; });
+  var fb=$(fbId);
+  fb.textContent=msg;
+  fb.classList.add('show','good');
+  if(fbId==='conflictfb'){ conflictDone=true; checkPart5(); }
+}
+
+var labelItems=[
+ {id:'l1', label:'A teenager shoplifts once on a dare, feels embarrassed, never does it again, and doesn\'t think of herself as "a thief."', val:'Primary', reveal:'This is primary deviance — a temporary, sporadic norm violation that the person doesn\'t build into their identity, and that others don\'t treat as defining who they are either.'},
+ {id:'l2', label:'A student who cheats once and gets caught is labeled a "cheater" by professors and peers, starts cheating more often, and begins to see herself that way too.', val:'Secondary', reveal:'This is secondary deviance — habitual violation where the label becomes part of a "deviant career," a self-fulfilling consequence of being labeled, not just the original act.'},
+ {id:'l3', label:'A teen moves to a new neighborhood where petty theft is normalized among their new peer group, and gradually starts committing theft too, picking up the attitudes and techniques from the group.', val:'Differential', reveal:'This is differential association theory (Sutherland) — deviance is learned through more contact with groups that define it favorably than with groups that define it unfavorably.'}
+];
+function buildLabel(){
+  var host=$('labelList');
+  labelItems.forEach(function(it){
+    var row=document.createElement('div'); row.className='classify-row';
+    row.innerHTML =
+      '<h4>'+it.label+'</h4>'+
+      '<div class="classify-opts">'+
+        '<button class="classify-opt" data-id="'+it.id+'" data-val="Primary" onclick="labelPick(this)">Primary Deviance</button>'+
+        '<button class="classify-opt" data-id="'+it.id+'" data-val="Secondary" onclick="labelPick(this)">Secondary Deviance</button>'+
+        '<button class="classify-opt" data-id="'+it.id+'" data-val="Differential" onclick="labelPick(this)">Differential Association</button>'+
+      '</div>'+
+      '<div class="classify-reveal" id="labelreveal-'+it.id+'"></div>';
+    host.appendChild(row);
+  });
+}
+var labelDone={};
+function labelPick(btn){
+  var id=btn.dataset.id, val=btn.dataset.val;
+  if(labelDone[id]) return;
+  labelDone[id]=true;
+  var item=labelItems.find(function(x){return x.id===id;});
+  var row=btn.closest('.classify-row');
+  row.querySelectorAll('.classify-opt').forEach(function(b){ b.disabled=true; });
+  var correct=(val===item.val);
+  var rv=$('labelreveal-'+id);
+  rv.textContent=(correct?'Correct. ':'Not quite. ')+item.reveal;
+  rv.classList.add('show');
+  AnswerLog.label.push({q:'Which concept: "'+item.label+'"', your:val, correct:item.val, right:correct});
+  checkPart5();
+}
+buildMerton(); buildLabel();
+
+/* ================= PART 6: CRIME & CRIMINAL JUSTICE ================= */
+var crimeItems=[
+ {id:'cr1', term:'Robbery committed by threatening a store clerk with a weapon', val:'Violent'},
+ {id:'cr2', term:'Breaking into a home and stealing electronics while no one is there', val:'Property'},
+ {id:'cr3', term:'An adult engaging in prostitution', val:'Victimless'},
+ {id:'cr4', term:'A corporate executive committing securities fraud to enrich themselves', val:'White-Collar'},
+ {id:'cr5', term:'A tightly organized group running an illegal gambling and loan-sharking operation', val:'Organized'}
+];
+function buildCrime(){
+  var host=$('crimeList');
+  var terms=crimeItems.slice(); var defs=[
+    {val:'Violent', label:'Violent Crime'},
+    {val:'Property', label:'Property Crime'},
+    {val:'Victimless', label:'Victimless Crime'},
+    {val:'White-Collar', label:'White-Collar Crime'},
+    {val:'Organized', label:'Organized Crime'}
+  ];
+  host.innerHTML = '<div class="match-wrap"><div class="match-col"><h4>Example</h4><div id="crimeTerms"></div></div><div class="match-col"><h4>Type of Crime</h4><div id="crimeDefs"></div></div></div><div class="feedback" id="crimeWrap"><b>Nice work!</b> Violent crimes involve the threat or use of force against a victim. Property crimes aim to gain property without force. Victimless crimes are tied to moral/legal debates about who, if anyone, is harmed. White-collar crime is committed by respectable people in the course of their employment. Organized crime involves groups expressly arranged to run illegal enterprises.</div>';
+  var tHost=$('crimeTerms'), dHost=$('crimeDefs');
+  var shuffledDefs = defs.slice().sort(function(){return Math.random()-0.5;});
+  terms.forEach(function(it,i){
+    var b=document.createElement('button'); b.className='match-btn'; b.dataset.idx=i; b.dataset.kind='term';
+    b.textContent=it.term; b.onclick=function(){selectCrimeMatch(b);};
+    tHost.appendChild(b);
+  });
+  shuffledDefs.forEach(function(d){
+    var origIdx = crimeItems.findIndex(function(x){return x.val===d.val;});
+    var b=document.createElement('button'); b.className='match-btn'; b.dataset.idx=origIdx; b.dataset.kind='def';
+    b.textContent=d.label; b.onclick=function(){selectCrimeMatch(b);};
+    dHost.appendChild(b);
+  });
+}
+var crimeSel=null, crimeMatched=0;
+function selectCrimeMatch(btn){
+  if(btn.classList.contains('matched')) return;
+  if(!crimeSel){ crimeSel=btn; btn.classList.add('selected'); return; }
+  if(crimeSel===btn){ crimeSel.classList.remove('selected'); crimeSel=null; return; }
+  if(crimeSel.dataset.kind===btn.dataset.kind){
+    crimeSel.classList.remove('selected'); crimeSel=btn; btn.classList.add('selected'); return;
+  }
+  if(crimeSel.dataset.idx===btn.dataset.idx){
+    crimeSel.classList.remove('selected'); crimeSel.classList.add('matched'); crimeSel.disabled=true;
+    btn.classList.add('matched'); btn.disabled=true;
+    crimeMatched++;
+    var item=crimeItems[parseInt(btn.dataset.idx)];
+    AnswerLog.func.push({q:'Type of crime: "'+item.term+'"', your:item.val, correct:item.val, right:true});
+    crimeSel=null;
+    if(crimeMatched===crimeItems.length){
+      $('crimeWrap').classList.add('show','good');
+      crimePartDone=true;
+      checkPart6();
+    }
+  } else {
+    crimeSel.classList.add('shake'); btn.classList.add('shake');
+    setTimeout(function(){ crimeSel.classList.remove('shake','selected'); btn.classList.remove('shake'); crimeSel=null; },500);
+  }
+}
+var crimePartDone=false, ucrDone=false;
+function checkPart6(){
+  var c=(crimePartDone?crimeItems.length:0)+(ucrDone?1:0);
+  pill('pill6', c+'/6');
+  if(crimePartDone && ucrDone) unlock('next6');
+}
+buildCrime();
+var _origTheoryPick = theoryPick;
+theoryPick = function(btn, correct, fbId, msg){
+  _origTheoryPick(btn, correct, fbId, msg);
+  if(fbId==='cjfb'){ ucrDone=true; checkPart6(); }
+};
+
+/* ================= PART 7: BEHIND THE BARS ================= */
+function finishSPEReflection(){
+  var ids=['spe1','spe2','spe3','spe4','spe5'];
+  var qs=[
+    'Understanding the experiment — one moment that stood out:',
+    'Applying sociological concepts — two concepts that explain guard/prisoner interactions:',
+    'Thinking about power — conflict theory explanation:',
+    'Questioning the research — how coaching evidence changes interpretation:',
+    'Connecting to the real world — questions about authority, accountability, and social control:'
+  ];
+  for(var i=0;i<ids.length;i++){
+    if(!$(ids[i]).value.trim()){ alert('Please answer all five reflection questions before continuing.'); return; }
+  }
+  S.spe = ids.map(function(id,i){ return {q:qs[i], a:$(id).value.trim()}; });
+  unlock('next7');
+  $('speBtn').textContent='Saved ✓';
+}
+
+/* ================= COMPLETION ================= */
+function finish(){
+  $('finalMsg').textContent = 'You worked through why rule-breaking happens, who gets to call it "deviant," and what real institutional power looks like up close. That\'s the heart of this chapter.';
+}
+
+/* ================= CERTIFICATE (canvas -> PNG, no score) ================= */
+function downloadCertificate(){
+  var c = $('certCanvas');
+  var ctx = c.getContext('2d');
+  var w = c.width, h = c.height;
+
+  ctx.fillStyle = '#faf3ea';
+  ctx.fillRect(0,0,w,h);
+
+  ctx.strokeStyle = '#8b4226';
+  ctx.lineWidth = 10;
+  ctx.strokeRect(30,30,w-60,h-60);
+  ctx.strokeStyle = '#c98a3e';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(46,46,w-92,h-92);
+
+  ctx.fillStyle = '#3a2a1c';
+  ctx.textAlign = 'center';
+  ctx.font = 'italic 30px Georgia';
+  ctx.fillText('Certificate of Completion', w/2, 170);
+
+  ctx.font = 'bold 50px Georgia';
+  ctx.fillStyle = '#8b4226';
+  ctx.fillText('SOC 101 · Chapter 7', w/2, 250);
+  ctx.font = 'italic 26px Georgia';
+  ctx.fillStyle = '#3d6b5c';
+  ctx.fillText('Breaking the Rules — The Deviance & Social Control Lab', w/2, 300);
+
+  ctx.font = '22px Georgia';
+  ctx.fillStyle = '#3a2a1c';
+  ctx.fillText('This certifies that', w/2, 400);
+
+  ctx.font = 'bold 46px Georgia';
+  ctx.fillStyle = '#8b4226';
+  ctx.fillText(S.name || 'Student Name', w/2, 465);
+
+  ctx.font = '22px Georgia';
+  ctx.fillStyle = '#3a2a1c';
+  ctx.fillText('has completed the Chapter 7 Deviance & Social Control Lab,', w/2, 520);
+  ctx.fillText('including theories of deviance, crime, social control,', w/2, 552);
+  ctx.fillText('and a reflection on the Stanford Prison Experiment.', w/2, 584);
+
+  ctx.font = 'italic 20px Georgia';
+  ctx.fillStyle = '#5a4632';
+  wrapCertText(ctx, '"Deviance is not a quality of the act a person commits, but a consequence of the rules and sanctions applied by others."', w/2, 660, 900, 28);
+
+  ctx.font = '18px Georgia';
+  ctx.fillStyle = '#3a2a1c';
+  var d = new Date();
+  ctx.fillText('Date: ' + d.toLocaleDateString(), w/2, 790);
+
+  ctx.font = 'bold 20px Georgia';
+  ctx.fillText('Jenika Towana Scott, M.S.W. (PhD Student)', w/2, 870);
+  ctx.font = '16px Georgia';
+  ctx.fillText('Adjunct Professor, Sociology — Essex County College', w/2, 896);
+
+  var link = document.createElement('a');
+  link.download = 'SOC101_Chapter7_Certificate_' + (S.name||'Student').replace(/\s+/g,'_') + '.png';
+  link.href = c.toDataURL('image/png');
+  link.click();
+}
+function wrapCertText(ctx, text, x, y, maxWidth, lineHeight){
+  var words = text.split(' ');
+  var line = '';
+  var lines = [];
+  for(var n=0;n<words.length;n++){
+    var testLine = line + words[n] + ' ';
+    if(ctx.measureText(testLine).width > maxWidth && n>0){
+      lines.push(line);
+      line = words[n] + ' ';
+    } else {
+      line = testLine;
+    }
+  }
+  lines.push(line);
+  var startY = y - ((lines.length-1)*lineHeight)/2;
+  lines.forEach(function(l,i){ ctx.fillText(l.trim(), x, startY + i*lineHeight); });
+}
+
+/* ================= WORD DOC SUMMARY ================= */
+function downloadSummary(){
+  var d=new Date();
+  var fileBase='SOC101_Chapter7_Summary_'+(S.name||'Student').replace(/\s+/g,'_');
+
+  var esc=function(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); };
+
+  function answerTable(title, rows) {
+    if (!rows || !rows.length) return '';
+    var out = '<h2 style="color:#8b4226; font-size:14pt;">'+title+'</h2>';
+    out += '<table style="font-size:10pt; border-collapse:collapse; width:100%; margin:6px 0 14px;">';
+    out += '<tr style="background:#f1e4d3;"><th style="border:1px solid #ccc; padding:5px; text-align:left;">Question</th><th style="border:1px solid #ccc; padding:5px; text-align:left;">Your Answer</th><th style="border:1px solid #ccc; padding:5px; text-align:left;">Correct / Reference Answer</th></tr>';
+    rows.forEach(function(r){
+      out += '<tr><td style="border:1px solid #ccc; padding:5px;">'+esc(r.q)+'</td>'+
+             '<td style="border:1px solid #ccc; padding:5px;">'+esc(r.your)+'</td>'+
+             '<td style="border:1px solid #ccc; padding:5px;">'+esc(r.correct)+'</td></tr>';
+    });
+    out += '</table>';
+    return out;
+  }
+
+  var answerTablesHtml =
+    answerTable('Part 1 Answers &mdash; What Is Deviance?', AnswerLog.func) +
+    answerTable('Part 1 Answers &mdash; Traditional Views', AnswerLog.views) +
+    answerTable('Part 2 Answers &mdash; The Relative Nature of Deviance', AnswerLog.rel) +
+    answerTable('Part 3 Answers &mdash; Social Control', AnswerLog.ctrl) +
+    answerTable('Part 4 Answers &mdash; Biological &amp; Psychological Theories', AnswerLog.biopsy) +
+    answerTable('Part 5 Answers &mdash; Merton\'s Modes of Adaptation', AnswerLog.merton) +
+    answerTable('Part 5 Answers &mdash; Labeling &amp; Differential Association', AnswerLog.label) +
+    answerTable('Part 6 Answers &mdash; Types of Crime', AnswerLog.func.filter(function(r){return r.q.indexOf('Type of crime')===0;}));
+
+  var speHtml = '';
+  if (S.spe) {
+    speHtml = '<h2 style="color:#8b4226; font-size:14pt;">Part 7 &mdash; Behind the Bars: My Reflection</h2>';
+    S.spe.forEach(function(item){
+      speHtml += '<p style="font-size:11pt;"><b>'+esc(item.q)+'</b><br>'+esc(item.a)+'</p>';
+    });
+  }
+
+  var htmlContent =
+   '<div style="font-family:Georgia,serif; color:#3a2a1c;">'+
+   '<h1 style="color:#8b4226; font-size:20pt; margin-bottom:0;">SOC 101 &middot; Chapter 7 Activity &mdash; My Summary</h1>'+
+   '<p style="font-size:11pt; color:#3d6b5c; margin-top:2px;">Course: SOC 101 &middot; Introduction to Sociology &middot; Essex County College<br>'+
+   'Activity created by: Jenika Towana Scott, M.S.W. (PhD Student), Adjunct Professor</p>'+
+   '<table style="font-size:11pt; margin:10px 0;">'+
+   '<tr><td><b>Student:</b></td><td>'+esc(S.name||'(no name entered)')+'</td></tr>'+
+   '<tr><td><b>Date completed:</b></td><td>'+esc(d.toLocaleDateString()+' '+d.toLocaleTimeString())+'</td></tr>'+
+   '</table>'+
+   '<h2 style="color:#8b4226; font-size:14pt;">Key Concepts Learned &mdash; Chapter 7</h2>'+
+   '<ol style="font-size:11pt;">'+
+   '<li>Deviance is variation from shared norms; it has both positive functions (tolerance limits, solidarity, safety valve, exposing defects, driving change) and dysfunctions (disrupting order, destroying trust).</li>'+
+   '<li>Traditional views: absolutist/moral, medical, and statistical. The relativistic view says deviance depends on time, place, situation, and social status.</li>'+
+   '<li>Social control relies on internal controls (conscience) and external controls, both informal (peer reactions) and formal (police, courts).</li>'+
+   '<li>Biological (Lombroso, Sheldon, XYY) and psychological (Freud\'s id/ego/superego) theories of deviance have largely been discredited as stand-alone explanations.</li>'+
+   '<li>Structural functionalism (Merton\'s strain/anomie and five modes of adaptation), conflict theory (the powerful define deviance), and symbolic interactionism (cultural transmission, differential association, social learning, labeling theory) are the three sociological perspectives.</li>'+
+   '<li>Crime is classified as violent, property, victimless, white-collar, or organized, and measured via the UCR (reported crime) and NCVS (victimization). The criminal justice system includes police, courts, and corrections.</li>'+
+   '</ol>'+
+   answerTablesHtml +
+   '<h2 style="color:#8b4226; font-size:14pt;">My Reflection &mdash; Part 3: Social Control</h2>'+
+   '<p style="font-size:11pt;"><b>An informal sanction that changed my behavior:</b><br>'+esc($('refCtrl').value.trim()||'(not answered)')+'</p>'+
+   speHtml +
+   '<p style="font-size:10pt; color:#6b5d4a; font-style:italic; margin-top:20px;">Use this summary to build your discussion post and to study for the comprehension quiz. This summary is for your own use.</p>'+
+   '</div>';
+
+  if (typeof htmlDocx !== 'undefined' && htmlDocx.asBlob) {
+    try {
+      var docxBlob = htmlDocx.asBlob('<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>'+htmlContent+'</body></html>');
+      var link = document.createElement('a');
+      link.download = fileBase + '.docx';
+      link.href = URL.createObjectURL(docxBlob);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      return;
+    } catch(e){ /* fall through to plain text */ }
+  }
+  var blob = new Blob([htmlContent.replace(/<[^>]+>/g,'')], {type:'text/plain'});
+  var link2 = document.createElement('a');
+  link2.download = fileBase + '.txt';
+  link2.href = URL.createObjectURL(blob);
+  document.body.appendChild(link2);
+  link2.click();
+  document.body.removeChild(link2);
+}
+
+var THEME_B64 = "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";
+$('themeImg').src = 'data:image/png;base64,' + THEME_B64;
+</script>
+
+<script src="https://unpkg.com/html-docx-js/dist/html-docx.js"></script>
+</body>
+</html>
